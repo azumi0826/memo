@@ -23,14 +23,15 @@
 </table>
 <script>
 
-//1.Save クリックイベント
-$("#save").on("click",function(){
+// savefunctionを関数で定義
+function savefunction(){
     const key =$("#key").val();  //val=value値
     const value =$("#memo").val();
     localStorage.setItem(key,value);
     // localstorageに保存
 
-    const html = '<tr><td>'+key+'</td><td>'+value+'</td><td><button class="deletebtn" data-key="'+key+'">削除</button></td></tr>';
+    const html = '<tr><td>'+key+'</td><td>'+value+'</td><td><button class="editbtn" data-key="'+key+'" >編集</button></td><td><button class="deletebtn" data-key="'+key+'">削除</button></td></tr>';
+    //＋で囲っているのは変数key data-key="文字列"　文字列の中身を変数keyなので＋＋
     //各データごとに削除ボタンを追加
     //datakey属性の追加で ユーザーがアクションを実行したときに、そのデータを参照して処理を行う
     $("#list").append(html);
@@ -38,7 +39,10 @@ $("#save").on("click",function(){
     $("#key").val(""); //空文字で上書き→入力したものを消す
     $("#memo").val(""); //空文字で上書き→入力したものを消す
 
-});
+
+}
+//1.Save クリックイベント
+$("#save").on("click",savefunction);
 
 
 
@@ -54,9 +58,39 @@ $("#clear").on("click",function(){
 // 項目ごとの削除ボタン
 // 個別削除ボタンは複数発生するので、idでは特定できない（idはページ内に１つ）
 $(document).on("click",".deletebtn",function(){
-    const key =$(this).data("key"); //押されたボタン（this）のdarta-keyデータ
-    localStorage.removeItem(key);
-    $(this).closest("tr").remove();
+    const key =$(this).data("key"); //押されたボタン（this）のdata-keyデータ
+    localStorage.removeItem(key); //1レコード削除の場合、removeItem(KEYネーム)
+    $(this).closest("tr").remove(); //押した削除ボタンに最も近いtrを除く
+});
+
+
+// 項目ごとの編集ボタン
+$(document).on("click","editbtn",function(){
+    const key = $(this).data("key");  //押されたボタン（this）のdata-keyデータ
+    const value =localStorage.getItem(key); //localstorageからキーに対応する値を取得する
+
+    // 編集したいアイテムを入力欄に表示させる
+    $("#key").val(key);
+    $("#memo").val(value);
+
+    // 保存ボタンだったぼたんを更新ボタンに変更
+    // もともとのClickイベントを解除してから新たにクリックイベント
+    $("#save").text("更新").off("click").on("click",function(){
+        const newvalue = $("#memo").val(); //メモらんに入力した内容を変数newvalueとする
+        localStorage.setItem(key,newvalue);
+        $("button[data-key ='" + key + "']").closest("tr").find(".value").text(newvalue);
+        //data-key 属性が key 変数の値と一致する button 要素を選択
+        // 選択されたボタンの親要素の中で一番近い tr 要素を選択
+        // 選択された tr 要素の中で、クラスが value の子要素
+        // 見つけた要素のテキストを newValue に更新
+
+         //入力欄を空白に
+          $("#key").val(""); //空文字で上書き→入力したものを消す
+          $("#memo").val(""); //空文字で上書き→入力したものを消す
+          $("#save").text("保存").off("click").on("click",savefunction);
+
+    });
+
 });
 
 
