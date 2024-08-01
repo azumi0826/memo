@@ -65,7 +65,7 @@ $(document).on("click",".deletebtn",function(){
 
 
 // 項目ごとの編集ボタン
-$(document).on("click","editbtn",function(){
+$(document).on("click",".editbtn",function(){
     const key = $(this).data("key");  //押されたボタン（this）のdata-keyデータ
     const value =localStorage.getItem(key); //localstorageからキーに対応する値を取得する
 
@@ -78,11 +78,11 @@ $(document).on("click","editbtn",function(){
     $("#save").text("更新").off("click").on("click",function(){
         const newvalue = $("#memo").val(); //メモらんに入力した内容を変数newvalueとする
         localStorage.setItem(key,newvalue);
-        $("button[data-key ='" + key + "']").closest("tr").find(".value").text(newvalue);
         //data-key 属性が key 変数の値と一致する button 要素を選択
         // 選択されたボタンの親要素の中で一番近い tr 要素を選択
         // 選択された tr 要素の中で、クラスが value の子要素
         // 見つけた要素のテキストを newValue に更新
+        $("button[data-key ='" + key + "']").closest("tr").find(".value").text(newvalue);
 
          //入力欄を空白に
           $("#key").val(""); //空文字で上書き→入力したものを消す
@@ -100,7 +100,7 @@ for(let i=0; i<localStorage.length; i++){
     const key = localStorage.key(i); //keyの０番目から順に取り出す
     const value = localStorage.getItem(key) //keyからvalue取得
 
-    const html = '<tr><td>'+key+'</td><td>'+value+'</td></tr>';
+    const html = '<tr><td>'+key+'</td><td class="value">'+value+'</td><td><button class="editbtn" data-key="'+key+'">編集</button></td><td><button class="deletebtn" data-key="'+key+'">削除</button></td></tr>';
     $("#list").append(html);
 }
 
