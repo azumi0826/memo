@@ -60,7 +60,7 @@ function generateuniqueid(){
 // substrメソッドは指定された位置から始まる部分の文字列を返す→「0.」を除外する
 
 const uniqueid = generateuniqueid();
-consloe.log(uniqueid);
+console.log(uniqueid);
 
 // savefunctionを関数で定義
 function savefunction(){
@@ -101,34 +101,48 @@ $("#clear").on("click",function(){
 // 項目ごとの削除ボタン
 // 個別削除ボタンは複数発生するので、idでは特定できない（idはページ内に１つ）
 $(document).on("click",".deletebtn",function(){
-    const key =$(this).data("key"); //押されたボタン（this）のdata-keyデータ
-    localStorage.removeItem(key); //1レコード削除の場合、removeItem(KEYネーム)
+    const id =$(this).data("id"); //押されたボタン（this）のデータのid
+    localStorage.removeItem(id); //1レコード削除の場合、removeItem(KEYネーム)
     $(this).closest("tr").remove(); //押した削除ボタンに最も近いtrを除く
 });
 
 
 // 項目ごとの編集ボタン
 $(document).on("click",".editbtn",function(){
-    const key = $(this).data("key");  //押されたボタン（this）のdata-keyデータ
-    const value =localStorage.getItem(key); //localstorageからキーに対応する値を取得する
+    const id = $(this).data("id");  //押されたボタン（this）のデータのid
+    const data = JSON.parse(localStorage.getItem(id)); 
+    // JSON.parse 取得したJSON文字列をJavascriptに変換
+    //localstorageからidに対応する値を取得する
 
     // 編集したいアイテムを入力欄に表示させる
-    $("#key").val(key);
-    $("#memo").val(value);
+    $("#date").val(data.date);
+    $("#category").val(data.category);
+    $("#memo").val(data.memo);
 
     // 保存ボタンだったぼたんを更新ボタンに変更
     // もともとのClickイベントを解除してから新たにクリックイベント
     $("#save").text("更新").off("click").on("click",function(){
-        const newvalue = $("#memo").val(); //メモらんに入力した内容を変数newvalueとする
-        localStorage.setItem(key,newvalue);
-        //data-key 属性が key 変数の値と一致する button 要素を選択
-        // 選択されたボタンの親要素の中で一番近い tr 要素を選択
-        // 選択された tr 要素の中で、クラスが value の子要素
-        // 見つけた要素のテキストを newValue に更新
+        const newdate = $("#date").val();
+        const newcategory = $("#category").val();
+        const newmemo = $("#memo").val();
+        localStorage.setItem(id, JSON.stringify({date: newdate, category: newcategory, memo: newmemo}));
+        // 新たに入力した値をlocalstorageに格納
+
+      
         $("button[data-key ='" + key + "']").closest("tr").find(".value").text(newvalue);
 
+        const $row = $("button[data-id='" + id + "']").closest("tr");
+        $row.find("td:eq(0)").text(newDate);
+        $row.find("td:eq(1)").text(newCategory);
+        $row.find("td:eq(2)").text(newMemo);
+        // ①編集ボタンがクリックされた行を見つける
+        // ②その行の各セル（td要素）を見つけて、新しいデータでテキストを更新する
+
+
+
          //入力欄を空白に
-          $("#key").val(""); //空文字で上書き→入力したものを消す
+          $("#date").val(""); //空文字で上書き→入力したものを消す
+          $("#category").val(""); //空文字で上書き→入力したものを消す
           $("#memo").val(""); //空文字で上書き→入力したものを消す
           $("#save").text("保存").off("click").on("click",savefunction);
 
@@ -140,10 +154,9 @@ $(document).on("click",".editbtn",function(){
 
 //3.ページ読み込み：保存データ取得表示
 for(let i=0; i<localStorage.length; i++){
-    const key = localStorage.key(i); //keyの０番目から順に取り出す
-    const value = localStorage.getItem(key) //keyからvalue取得
-
-    const html = '<tr><td>'+key+'</td><td class="value">'+value+'</td><td><button class="editbtn" data-key="'+key+'">編集</button></td><td><button class="deletebtn" data-key="'+key+'">削除</button></td></tr>';
+    const id = localStorage.key(i); //keyの０番目から順に取り出す
+    const data = JSON.parse(localStorage.getItem(id)) //idからデータを取得
+    const html = '<tr><td>'+data.date+'</td><td>'+data.category+'</td><td>'+data.memo+'</td><td><button class="editbtn" data-id="'+id+'">編集</button></td><td><button class="deletebtn" data-id="'+id+'">削除</button></td></tr>';
     $("#list").append(html);
 }
 
