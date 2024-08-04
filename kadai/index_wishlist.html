@@ -8,7 +8,7 @@
 </head>
 <body>
 <header>
-<h1>MemoPad</h1>
+<h1>MY BUCKET LIST</h1>
 </header>
 <main>
     <!-- カテゴリ -->
@@ -19,7 +19,7 @@
         <option value="暮らし">暮らし</option>
         <option value="体験">体験</option>
     </select> 
-    
+
     <!-- 日付選択 -->
     <input type="date" id="date">  
 
@@ -35,10 +35,16 @@
 <!-- ここに検索が挿入される -->
 <input type="text" id="search" placeholder="検索...">
 
-
-<table id="list">
 <!-- ここに追加データが挿入される -->
+<table id="list">
+    <tr>
+        <td>期日</td>
+        <td>内容</td>
+        <td>編集</td>
+        <td>削除</td>
+    </tr>
 </table>
+
 <script>
 
 // savefunctionを関数で定義
