@@ -30,21 +30,32 @@
         <li id="clear">全て消す</li>
     </ul>
 
+
+   <!-- カテゴリごとのリスト表示エリア -->
+   <div id="categorylists">
+     <div class="category-section" id="travel">
+        <h2>旅行</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+     <div class="category-section" id="food">
+        <h2>食事</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+     <div class="category-section" id="lifestyle">
+        <h2>暮らし</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+     <div class="category-section" id="experience">
+        <h2>体験</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+   </div>
+
 </main>
 
-<!-- ここに検索が挿入される -->
-<input type="text" id="search" placeholder="検索...">
 
-<!-- ここに追加データが挿入される -->
-<table id="list">
-    <tr>
-        <td>カテゴリ</td>
-        <td>期日</td>
-        <td>内容</td>
-        <td>編集</td>
-        <td>削除</td>
-    </tr>
-</table>
+
+
 
 <script>
 
@@ -53,7 +64,6 @@
 function generateuniqueid(){
     return Date.now().toString(36) + Math.random().toString(36).substr(2);
 }
-
 // Date.now() メソッドは、UTC (協定世界時) での 1970 年 1 月 1 日 0 時 0 分 0 秒 から現在までの経過時間をミリ秒単位で返す
 // tostringで数を指定の進数に変換。３６進数は0-9,a-zなので読みやすい
 // Math.randam()0以上1未満のランダムな数字を生成
@@ -61,6 +71,31 @@ function generateuniqueid(){
 
 const uniqueid = generateuniqueid();
 console.log(uniqueid);
+
+
+// リストアイテムを追加する関数
+    function additemtolist(id, date, category, memo) {
+        const listitem = `<li data-id="${id}">
+            <span class="date">${date}</span>
+            <span class="memo">${memo}</span>
+            <button class="editbtn" data-id="${id}">編集</button>
+            <button class="deletebtn" data-id="${id}">削除</button>
+        </li>`;
+        
+        $(`#${getcategoryid(category)} .bucket-list`).append(listitem);
+    }
+
+ // カテゴリ名からHTML IDを取得する関数
+    function getcategoryid(category) {
+        switch(category) {
+            case '旅行': return 'travel';
+            case '食事': return 'food';
+            case '暮らし': return 'lifestyle';
+            case '体験': return 'experience';
+            default: return 'travel';
+        }
+    }
+
 
 // savefunctionを関数で定義
 function savefunction(){
@@ -72,17 +107,16 @@ function savefunction(){
     // setItem(key,value) keyに生成したIDを入れる
     // JSON.stringifyは、JavaScriptのオブジェクトや値をJSON形式の文字列に変換
 
-    const html = '<tr><td>'+date+'</td><td>'+category+'</td><td>'+memo+'</td><td><button class="editbtn" data-id="'+id+'" >編集</button></td><td><button class="deletebtn" data-id="'+id+'">削除</button></td></tr>';
-    //各データごとに削除と編集ボタンを追加
-    // 出力例：button class="editbtn" data-id="unique123"
-    $("#list").append(html);
-    // appendで前のデータも消さずに追加
+    additemtolist(id, date, category, memo);
+
     $("#date").val(""); //空文字で上書き→入力したものを消す
     $("#category").val(""); //空文字で上書き→入力したものを消す
     $("#memo").val(""); //空文字で上書き→入力したものを消す
 
 
 }
+
+
 
 //1.Save クリックイベント
 $("#save").on("click",savefunction);
@@ -93,7 +127,7 @@ $("#save").on("click",savefunction);
 //2.clear クリックイベント
 $("#clear").on("click",function(){
     localStorage.clear();
-    $("#list").empty(); //#table内を削除
+    $(".bucket-list").empty(); //#bucketlist削除
 
 });
 
@@ -103,7 +137,7 @@ $("#clear").on("click",function(){
 $(document).on("click",".deletebtn",function(){
     const id =$(this).data("id"); //押されたボタン（this）のデータのid
     localStorage.removeItem(id); //1レコード削除の場合、removeItem(KEYネーム)
-    $(this).closest("tr").remove(); //押した削除ボタンに最も近いtrを除く
+    $(this).closest("li").remove(); //押した削除ボタンに最も近いliを除く
 });
 
 
@@ -130,12 +164,8 @@ $(document).on("click",".editbtn",function(){
 
       
 
-        const $row = $("button[data-id='" + id + "']").closest("tr");
-        $row.find("td:eq(0)").text(newcategory);
-        $row.find("td:eq(1)").text(newdate);
-        $row.find("td:eq(2)").text(newmemo);
-        // ①編集ボタンがクリックされた行を見つける
-        // ②その行の各セル（td要素）を見つけて、新しいデータでテキストを更新する
+        $(`li[data-id="${id}"]`).remove();
+        additemtolist(id, newdate, newcategory, newmemo);
 
 
 
