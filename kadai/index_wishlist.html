@@ -125,16 +125,15 @@ $(document).on("click",".editbtn",function(){
         const newdate = $("#date").val();
         const newcategory = $("#category").val();
         const newmemo = $("#memo").val();
-        localStorage.setItem(id, JSON.stringify({date: newdate, category: newcategory, memo: newmemo}));
+        localStorage.setItem(id, JSON.stringify({category: newcategory,date: newdate, memo: newmemo}));
         // 新たに入力した値をlocalstorageに格納
 
       
-        $("button[data-key ='" + key + "']").closest("tr").find(".value").text(newvalue);
 
         const $row = $("button[data-id='" + id + "']").closest("tr");
-        $row.find("td:eq(0)").text(newDate);
-        $row.find("td:eq(1)").text(newCategory);
-        $row.find("td:eq(2)").text(newMemo);
+        $row.find("td:eq(0)").text(newcategory);
+        $row.find("td:eq(1)").text(newdate);
+        $row.find("td:eq(2)").text(newmemo);
         // ①編集ボタンがクリックされた行を見つける
         // ②その行の各セル（td要素）を見つけて、新しいデータでテキストを更新する
 
