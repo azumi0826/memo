@@ -38,6 +38,7 @@
 <!-- ここに追加データが挿入される -->
 <table id="list">
     <tr>
+        <td>カテゴリ</td>
         <td>期日</td>
         <td>内容</td>
         <td>編集</td>
@@ -46,6 +47,20 @@
 </table>
 
 <script>
+
+// ユニークなIDを振る
+// 現在の日時とランダムに生成した数値を組み合わせてユニークなIDにする
+function generateuniqueid(){
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+
+// Date.now() メソッドは、UTC (協定世界時) での 1970 年 1 月 1 日 0 時 0 分 0 秒 から現在までの経過時間をミリ秒単位で返す
+// tostringで数を指定の進数に変換。３６進数は0-9,a-zなので読みやすい
+// Math.randam()0以上1未満のランダムな数字を生成
+// substrメソッドは指定された位置から始まる部分の文字列を返す→「0.」を除外する
+
+const uniqueid = generateuniqueid();
+consloe.log(uniqueid);
 
 // savefunctionを関数で定義
 function savefunction(){
