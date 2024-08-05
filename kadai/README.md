@@ -10,7 +10,7 @@ MY BUCKET LIST
 
 ## ③DEMO
 
-デプロイしている場合はURLを記入（任意）
+(https://yellow31.sakura.ne.jp/memo/kadai/)
 
 
 ## ⑤工夫した点・こだわった点

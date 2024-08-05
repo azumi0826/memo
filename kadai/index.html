@@ -2,41 +2,156 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>myMemoPad</title>
+<title>MY BUCKET LIST</title>
 <script src="js/jquery-2.1.3.min.js"></script>
-<link rel="stylesheet" href="css/sample.css">
+<link rel="stylesheet" href="css/sample_2.css">
 </head>
 <body>
 <header>
-<h1>MemoPad</h1>
+<h1>MY BUCKET LIST</h1>
 </header>
 <main>
-    <input type="text" id="key">
-    <textarea id="memo"></textarea>
+    <!-- カテゴリ -->
+    <select id="category">
+        <option value="">カテゴリを選択</option>
+        <option value="旅行">旅行</option>
+        <option value="食事">食事</option>
+        <option value="暮らし">暮らし</option>
+        <option value="体験">体験</option>
+    </select> 
+
+    <!-- 日付選択 -->
+    <input type="month" id="date">  
+
+
+    <textarea id="memo" placeholder="叶えたいことは？"></textarea>
     <ul>
-        <li id="save">Save</li>
-        <li id="clear">Clear</li>
+        <li id="save">保存</li>
+        <li id="clear">全て消す</li>
     </ul>
+
+
+   <!-- カテゴリごとのリスト表示エリア -->
+   <div id="categorylists">
+     <div class="category-section" id="travel">
+        <h2>旅行</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+     <div class="category-section" id="food">
+        <h2>食事</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+     <div class="category-section" id="lifestyle">
+        <h2>暮らし</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+     <div class="category-section" id="experience">
+        <h2>体験</h2>
+        <ul class="bucket-list"></ul>
+     </div>
+   </div>
+
 </main>
-<table id="list">
-<!-- ここに追加データが挿入される -->
-</table>
+
+
+
+
+
 <script>
 
-//1.Save クリックイベント
-$("#save").on("click",function(){
-    const key =$("#key").val();  //val=
-    const value =$("#memo").val();
-    localStorage.setItem(key,value);
-    // localstorageに保存
+// ユニークなIDを振る
+// 現在の日時とランダムに生成した数値を組み合わせてユニークなIDにする
+function generateuniqueid(){
+    return Date.now().toString(36) + Math.random().toString(36).substr(2);
+}
+// Date.now() メソッドは、UTC (協定世界時) での 1970 年 1 月 1 日 0 時 0 分 0 秒 から現在までの経過時間をミリ秒単位で返す
+// tostringで数を指定の進数に変換。３６進数は0-9,a-zなので読みやすい
+// Math.randam()0以上1未満のランダムな数字を生成
+// substrメソッドは指定された位置から始まる部分の文字列を返す→「0.」を除外する
 
-    const html = '<tr><td>'+key+'</td><td>'+value+'</td></tr>';
-    $("#list").append(html);
-    // appendで前のデータも消さずに追加
-    $("#key").val(""); //空文字で上書き→入力したものを消す
+const uniqueid = generateuniqueid();
+console.log(uniqueid);
+
+
+// 日付順にソートすうる用の関数
+function sortbucketlist(){
+    $('.category-section').each(function() { //categporysectionのそれぞれの要素に対して
+        const $list = $(this).find('.bucket-list');
+        const items = $list.children('li').get(); //$list内の子要素（li）を取得し、itemsに格納
+        items.sort((a, b) => { //itemsをソート。配列内の2つの要素 (a と b) を受け取り、それらを比較して順序を決定。
+            const dateA = new Date($(a).find('.date').text()); // a 要素の中にある date クラスを持つ要素を見つける
+            const dateB = new Date($(b).find('.date').text());
+            return dateA - dateB; //2つの日付の差を比較し、負の値ならaはbよりも前にそーとされる
+            // items.sort((a, b) => {a-b}) a-bが負ならaはbの前に来る
+        });
+
+        $.each(items, (idx, item) => $list.append(item));
+    });
+}
+
+// リストアイテムを追加する関数
+    function additemtolist(id, date, category, memo,completed = false) {
+        const listitem = `<li data-id="${id}">
+            <div class="item-content">
+            <input type="checkbox" class="complete-checkbox" ${completed ? 'checked' : ''}>
+            <span class="date">${date}</span>
+            <span class="memo ${completed ? 'completed' : ''}">${memo}</span>
+            </div>
+            <div class="item-buttons">
+            <button class="editbtn" data-id="${id}">編集</button>
+            <button class="deletebtn" data-id="${id}">削除</button>
+            </div>
+        </li>`;
+        
+        $(`#${getcategoryid(category)} .bucket-list`).append(listitem);
+        sortbucketlist(); //追加後にソート
+    }
+
+ // カテゴリ名からHTML IDを取得する関数
+    function getcategoryid(category) {
+        switch(category) {
+            case '旅行': return 'travel';
+            case '食事': return 'food';
+            case '暮らし': return 'lifestyle';
+            case '体験': return 'experience';
+            default: return 'travel';
+        }
+    }
+
+
+// savefunctionを関数で定義
+function savefunction(){
+    const id = generateuniqueid();
+    const date =$("#date").val();  //val=value値
+    const category =$("#category").val();
+    const memo = $("#memo").val();
+    localStorage.setItem(id,JSON.stringify({date: date, category: category, memo: memo,completed:false}));
+    // setItem(key,value) keyに生成したIDを入れる
+    // JSON.stringifyは、JavaScriptのオブジェクトや値をJSON形式の文字列に変換
+
+    additemtolist(id, date, category, memo, false);
+
+    $("#date").val(""); //空文字で上書き→入力したものを消す
+    $("#category").val(""); //空文字で上書き→入力したものを消す
     $("#memo").val(""); //空文字で上書き→入力したものを消す
 
+}
+
+// チェックボックスの挙動
+$(document).on("change", ".complete-checkbox", function() {
+    const $li = $(this).closest('li');
+    const id = $li.data('id');
+    const isCompleted = $(this).prop('checked');
+    
+    const data = JSON.parse(localStorage.getItem(id));
+    data.completed = isCompleted;
+    localStorage.setItem(id, JSON.stringify(data));
+
+    $li.find('.memo').toggleClass('completed', isCompleted);
 });
+
+//1.Save クリックイベント
+$("#save").on("click",savefunction);
 
 
 
@@ -44,22 +159,79 @@ $("#save").on("click",function(){
 //2.clear クリックイベント
 $("#clear").on("click",function(){
     localStorage.clear();
-    $("#list").empty(); //#table内を削除
+    $(".bucket-list").empty(); //#bucketlist削除
+
+});
+
+
+// 項目ごとの削除ボタン
+// 個別削除ボタンは複数発生するので、idでは特定できない（idはページ内に１つ）
+$(document).on("click",".deletebtn",function(){
+    const id =$(this).data("id"); //押されたボタン（this）のデータのid
+    localStorage.removeItem(id); //1レコード削除の場合、removeItem(KEYネーム)
+    $(this).closest("li").remove(); //押した削除ボタンに最も近いliを除く
+});
+
+
+// 項目ごとの編集ボタン
+$(document).on("click",".editbtn",function(){
+    const id = $(this).data("id");  //押されたボタン（this）のデータのid
+    const data = JSON.parse(localStorage.getItem(id)); 
+    // JSON.parse 取得したJSON文字列をJavascriptに変換
+    //localstorageからidに対応する値を取得する
+
+    // 編集したいアイテムを入力欄に表示させる
+    $("#date").val(data.date);
+    $("#category").val(data.category);
+    $("#memo").val(data.memo);
+
+    // 保存ボタンだったぼたんを更新ボタンに変更
+    // もともとのClickイベントを解除してから新たにクリックイベント
+    $("#save").text("更新").off("click").on("click",function(){
+        const newdate = $("#date").val();
+        const newcategory = $("#category").val();
+        const newmemo = $("#memo").val();
+        const completed =  $(`li[data-id="${id}"] .complete-checkbox`).prop('checked');
+
+        localStorage.setItem(id, JSON.stringify({category: newcategory,date: newdate, memo: newmemo,completed: completed}));
+        // 新たに入力した値をlocalstorageに格納
+
+      
+
+        $(`li[data-id="${id}"]`).remove();
+        additemtolist(id, newdate, newcategory, newmemo,completed);
+        sortbucketlist(); //更新後もソート
+
+
+
+         //入力欄を空白に
+          $("#date").val(""); //空文字で上書き→入力したものを消す
+          $("#category").val(""); //空文字で上書き→入力したものを消す
+          $("#memo").val(""); //空文字で上書き→入力したものを消す
+          $("#save").text("保存").off("click").on("click",savefunction);
+
+    });
 
 });
 
 
 
-
-
 //3.ページ読み込み：保存データ取得表示
 for(let i=0; i<localStorage.length; i++){
-    const key = localStorage.key(i); //keyの０番目から順に取り出す
-    const value = localStorage.getItem(key) //keyからvalue取得
-
-    const html = '<tr><td>'+key+'</td><td>'+value+'</td></tr>';
+    const id = localStorage.key(i); //keyの０番目から順に取り出す
+    const data = JSON.parse(localStorage.getItem(id)) //idからデータを取得
+    const html = '<tr><td>'+data.date+'</td><td>'+data.category+'</td><td>'+data.memo+'</td><td><button class="editbtn" data-id="'+id+'">編集</button></td><td><button class="deletebtn" data-id="'+id+'">削除</button></td></tr>';
     $("#list").append(html);
 }
+
+$(document).ready(function() {
+    for(let i = 0; i < localStorage.length; i++) {
+        const id = localStorage.key(i);
+        const data = JSON.parse(localStorage.getItem(id));
+        additemtolist(id, data.date, data.category, data.memo,data.completed);
+    }
+    sortbucketlist(); // 初期読み込み後にソートを実行
+});
 
 
 
