@@ -92,10 +92,14 @@ function sortbucketlist(){
 // リストアイテムを追加する関数
     function additemtolist(id, date, category, memo) {
         const listitem = `<li data-id="${id}">
+            <div class="item-content">
             <span class="date">${date}</span>
             <span class="memo">${memo}</span>
+            </div>
+            <div class="item-buttons">
             <button class="editbtn" data-id="${id}">編集</button>
             <button class="deletebtn" data-id="${id}">削除</button>
+            </div>
         </li>`;
         
         $(`#${getcategoryid(category)} .bucket-list`).append(listitem);
@@ -206,6 +210,15 @@ for(let i=0; i<localStorage.length; i++){
     const html = '<tr><td>'+data.date+'</td><td>'+data.category+'</td><td>'+data.memo+'</td><td><button class="editbtn" data-id="'+id+'">編集</button></td><td><button class="deletebtn" data-id="'+id+'">削除</button></td></tr>';
     $("#list").append(html);
 }
+
+$(document).ready(function() {
+    for(let i = 0; i < localStorage.length; i++) {
+        const id = localStorage.key(i);
+        const data = JSON.parse(localStorage.getItem(id));
+        additemtolist(id, data.date, data.category, data.memo);
+    }
+    sortbucketlist(); // 初期読み込み後にソートを実行
+});
 
 
 
