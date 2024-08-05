@@ -90,11 +90,12 @@ function sortbucketlist(){
 }
 
 // リストアイテムを追加する関数
-    function additemtolist(id, date, category, memo) {
+    function additemtolist(id, date, category, memo,completed = false) {
         const listitem = `<li data-id="${id}">
             <div class="item-content">
+            <input type="checkbox" class="complete-checkbox" ${completed ? 'checked' : ''}>
             <span class="date">${date}</span>
-            <span class="memo">${memo}</span>
+            <span class="memo ${completed ? 'completed' : ''}">${memo}</span>
             </div>
             <div class="item-buttons">
             <button class="editbtn" data-id="${id}">編集</button>
@@ -124,20 +125,30 @@ function savefunction(){
     const date =$("#date").val();  //val=value値
     const category =$("#category").val();
     const memo = $("#memo").val();
-    localStorage.setItem(id,JSON.stringify({date: date, category: category, memo: memo}));
+    localStorage.setItem(id,JSON.stringify({date: date, category: category, memo: memo,completed:false}));
     // setItem(key,value) keyに生成したIDを入れる
     // JSON.stringifyは、JavaScriptのオブジェクトや値をJSON形式の文字列に変換
 
-    additemtolist(id, date, category, memo);
+    additemtolist(id, date, category, memo, false);
 
     $("#date").val(""); //空文字で上書き→入力したものを消す
     $("#category").val(""); //空文字で上書き→入力したものを消す
     $("#memo").val(""); //空文字で上書き→入力したものを消す
 
-
 }
 
+// チェックボックスの挙動
+$(document).on("change", ".complete-checkbox", function() {
+    const $li = $(this).closest('li');
+    const id = $li.data('id');
+    const isCompleted = $(this).prop('checked');
+    
+    const data = JSON.parse(localStorage.getItem(id));
+    data.completed = isCompleted;
+    localStorage.setItem(id, JSON.stringify(data));
 
+    $li.find('.memo').toggleClass('completed', isCompleted);
+});
 
 //1.Save クリックイベント
 $("#save").on("click",savefunction);
@@ -180,13 +191,15 @@ $(document).on("click",".editbtn",function(){
         const newdate = $("#date").val();
         const newcategory = $("#category").val();
         const newmemo = $("#memo").val();
-        localStorage.setItem(id, JSON.stringify({category: newcategory,date: newdate, memo: newmemo}));
+        const completed =  $(`li[data-id="${id}"] .complete-checkbox`).prop('checked');
+
+        localStorage.setItem(id, JSON.stringify({category: newcategory,date: newdate, memo: newmemo,completed: completed}));
         // 新たに入力した値をlocalstorageに格納
 
       
 
         $(`li[data-id="${id}"]`).remove();
-        additemtolist(id, newdate, newcategory, newmemo);
+        additemtolist(id, newdate, newcategory, newmemo,completed);
         sortbucketlist(); //更新後もソート
 
 
@@ -215,7 +228,7 @@ $(document).ready(function() {
     for(let i = 0; i < localStorage.length; i++) {
         const id = localStorage.key(i);
         const data = JSON.parse(localStorage.getItem(id));
-        additemtolist(id, data.date, data.category, data.memo);
+        additemtolist(id, data.date, data.category, data.memo,data.completed);
     }
     sortbucketlist(); // 初期読み込み後にソートを実行
 });

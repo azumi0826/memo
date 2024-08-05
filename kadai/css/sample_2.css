@@ -176,3 +176,13 @@ textarea {
 textarea::placeholder {
     color: #999;
 }
+
+
+.bucket-list .complete-checkbox {
+    margin-right: 10px;
+}
+
+.bucket-list .memo.completed {
+    text-decoration: line-through;
+    color: #888;
+}
