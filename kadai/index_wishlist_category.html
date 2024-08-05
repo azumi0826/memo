@@ -73,6 +73,22 @@ const uniqueid = generateuniqueid();
 console.log(uniqueid);
 
 
+// 日付順にソートすうる用の関数
+function sortbucketlist(){
+    $('.category-section').each(function() { //categporysectionのそれぞれの要素に対して
+        const $list = $(this).find('.bucket-list');
+        const items = $list.children('li').get(); //$list内の子要素（li）を取得し、itemsに格納
+        items.sort((a, b) => { //itemsをソート。配列内の2つの要素 (a と b) を受け取り、それらを比較して順序を決定。
+            const dateA = new Date($(a).find('.date').text()); // a 要素の中にある date クラスを持つ要素を見つける
+            const dateB = new Date($(b).find('.date').text());
+            return dateA - dateB; //2つの日付の差を比較し、負の値ならaはbよりも前にそーとされる
+            // items.sort((a, b) => {a-b}) a-bが負ならaはbの前に来る
+        });
+
+        $.each(items, (idx, item) => $list.append(item));
+    });
+}
+
 // リストアイテムを追加する関数
     function additemtolist(id, date, category, memo) {
         const listitem = `<li data-id="${id}">
@@ -83,6 +99,7 @@ console.log(uniqueid);
         </li>`;
         
         $(`#${getcategoryid(category)} .bucket-list`).append(listitem);
+        sortbucketlist(); //追加後にソート
     }
 
  // カテゴリ名からHTML IDを取得する関数
@@ -166,6 +183,7 @@ $(document).on("click",".editbtn",function(){
 
         $(`li[data-id="${id}"]`).remove();
         additemtolist(id, newdate, newcategory, newmemo);
+        sortbucketlist(); //更新後もソート
 
 
 
